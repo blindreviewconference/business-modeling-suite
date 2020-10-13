@@ -703,6 +703,9 @@ export class FeatureModel {
   // Export
 
   toPouchDb(): any {
+    if (!this._id) {
+      this._id = String(Date.now());
+    }
     const features = {};
     Object.entries(this.features).forEach(([id, feature]) => features[id] = feature.toPouchDb());
     const expertModelTraces = {};
