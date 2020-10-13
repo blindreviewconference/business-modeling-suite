@@ -1,0 +1,161 @@
+<ng-template #deleteModal let-c="close" let-d="dismiss">
+  <app-delete-feature-confirm
+    [feature]="modalFeature"
+    (deletionResult)="deleteFeature($event)"
+    (closeModal)="closeModal()"></app-delete-feature-confirm>
+</ng-template>
+
+<ng-template #updateModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">{{modalFeature.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="text-muted pt-3">
+      <app-feature-form
+        [feature]="modalFeature"
+        [disabledSubfeatures]="modalSubfeatureIds"
+        [featureList]="companyFeatureList"
+        (submitFeatureForm)="updateFeature($event)"></app-feature-form>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #dependencyModal let-c="close" let-d="dismiss">
+  <app-cross-tree-relationship-modal
+    [feature]="modalFeature"
+    [featureModel]="modalFeatureModel"
+    [companyModel]="modalFeatureModel._id === expertModel._id ? companyModel : null"
+    (addRelationshipOnCompanyModel)="addDependency($event.type, $event.fromFeatureId, $event.toFeatureId)"
+    (closeModal)="closeModal()"
+    (removeRelationship)="deleteDependency($event.type, $event.fromFeatureId, $event.toFeatureId)"></app-cross-tree-relationship-modal>
+</ng-template>
+
+
+<ng-template #traceModal>
+  <app-trace-modal [feature]="modalFeature" [tracedFeature]="modalTracedFeature" (closeModal)="closeModal()"
+                   (deleteTrace)="deleteTrace()"></app-trace-modal>
+</ng-template>
+
+
+<ng-template #mergeModal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{modalFeature.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="text-muted pt-3">
+      <app-feature-form [feature]="modalFeature" [featureList]="companyFeatureList"
+                        [enabledSubfeatures]="modalSubfeatureIds" submitButtonText="Merge Feature"
+                        (submitFeatureForm)="mergeFeature($event)"></app-feature-form>
+    </div>
+  </div>
+</ng-template>
+
+
+<ng-template #selectModal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{modalFeature.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="text-muted pt-3">
+      <form [formGroup]="modalSelectFeatureForm" (ngSubmit)="mergeIntoSelected()">
+
+        <div class="form-group row">
+          <label for="feature" class="col-sm-4 col-form-label">Select feature</label>
+          <div class="col-sm-8">
+            <select id="feature" formControlName="feature" class="form-control">
+              <option *ngFor="let fl of companyFeatureList; let i = index"
+                      [disabled]="!modalSubfeatureIds.includes(fl.id)"
+                      [ngValue]="fl.id">{{fl.levelname}}
+              </option>
+            </select>
+
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <div class="col-sm-12">
+            <button type="submit" class="btn btn-dark btn-block" [disabled]="!modalSelectFeatureForm.valid">
+              Merge Feature
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #featurerow let-id="id">
+  <div class="row">
+    <div class="col-sm-6">
+      <app-merge-tree *ngIf="expertModel && expertModel.features"
+                      [features]="{id: expertModel.features[id]}"
+                      [trace]="companyModel.expertModelTraces[expertModelId]"
+                      (addTrace)="openMergeModal($event)"
+                      (openDependencies)="openDependenciesModalExpertModel($event)"
+                      (selectFeature)="openSelectModal($event)"
+                      (openTrace)="openExpertTraceModal($event)"></app-merge-tree>
+    </div>
+    <div class="col-sm-6">
+      <app-merge-into-tree *ngIf="companyModel && companyModel.features" [expertModelId]="expertModelId"
+                           [openPanels]="companyOpenPanels"
+                           [features]="{id: companyModel.features[id]}"
+                           (openDependencies)="openDependenciesModalCompanyModel($event)"
+                           (openTrace)="openTraceModal($event)"
+                           (updateFeature)="openUpdateFeatureModal($event)"
+                           (deleteFeature)="openDeleteFeatureModal($event)"></app-merge-into-tree>
+    </div>
+  </div>
+</ng-template>
+
+<div class="nav-scroller bg-white shadow-sm">
+  <nav class="nav nav-underline">
+    <a *ngIf="companyModel" class="nav-link"
+       [routerLink]="['/featuremodelview', companyModel._id]">View {{companyModel.name}}</a>
+    <a *ngIf="companyModel" class="nav-link"
+       [routerLink]="['/featuremodel', companyModel._id]">Edit {{companyModel.name}}</a>
+    <a *ngIf="companyModel && expertModel" class="nav-link active"
+       [routerLink]="['/merge', companyModel._id, expertModel._id]">Merge {{expertModel.name}}
+      into {{companyModel.name}}</a>
+  </nav>
+</div>
+
+<main *ngIf="expertModel && companyModel" role="main">
+  <!-- List of Features -->
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Merge Model List</h6>
+
+    <ng-container *ngFor="let id of asKeys(companyModel.features)">
+      <ng-container *ngTemplateOutlet="featurerow; context: {id: id}"></ng-container>
+    </ng-container>
+
+    <div class="row">
+      <div class="col-4"><strong>Legend:</strong></div>
+      <div class="col-4"><i class="fa fa-circle"></i> Mandatory Feature</div>
+      <div class="col-4"><i class="fa fa-circle-o"></i> Optional Feature</div>
+    </div>
+    <div class="row">
+      <div class="col-4">&nbsp;</div>
+      <div class="col-4"><i class="fa fa-caret-up"></i> Or</div>
+      <div class="col-4"><i class="fa fa-angle-up"></i> Alternative (Xor)</div>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm container">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Add Feature</h6>
+    <div class="text-muted pt-3">
+      <app-feature-form
+        submitButtonText="Add Feature to company model"
+        [featureList]="companyFeatureList"
+        (submitFeatureForm)="addFeatureToCompanyModel($event)"></app-feature-form>
+    </div>
+  </div>
+</main>

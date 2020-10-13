@@ -1,0 +1,42 @@
+<ul *ngIf="features" class="list-group inner" style="margin:5px;">
+
+  <li *ngFor="let f of getFeatures()"
+      class="d-flex flex-wrap list-group-item justify-content-between align-items-center">
+
+    <div class="d-flex">
+      <div class="mr-1">
+        <i *ngIf="f.type === 'mandatory'" class="fa fa-circle"></i>
+        <i *ngIf="f.type === 'optional'" class="fa fa-circle-o"></i>
+      </div>
+
+      <div class="mr-1">
+        {{ f.name }}
+        <small class="text-muted" *ngIf="f.description">{{ f.description }}</small>
+      </div>
+
+      <div>
+        <i class="fa fa-caret-up" *ngIf="f.subfeatureConnections === 'or'"></i>
+        <i class="fa fa-angle-up" *ngIf="f.subfeatureConnections === 'xor'"></i>
+      </div>
+    </div>
+
+    <div>
+      <button type="button" *ngIf="!f.relationships.hasNoRelationships()" class="btn btn-dark btn-xs mr-1"
+              (click)="openDependencies(f.id)">Show Dependencies
+      </button>
+      <button (click)="updateFeature(f.id)" type="button" class="btn btn-warning btn-xs mr-1">Update</button>
+      <button [class.invisible]="f.parent === null" (click)="deleteFeature(f.id)" type="button"
+              class="btn btn-danger btn-xs">
+        Delete
+      </button>
+    </div>
+
+    <app-feature-tree
+      class="w-100"
+      [features]="f.subfeatures"
+      (openDependenciesEmitter)="openDependenciesForwardEmitter($event)"
+      (updateFeatureEmitter)="updateFeatureForwardEmitter($event)"
+      (deleteFeatureEmitter)="deleteFeatureForwardEmitter($event)"></app-feature-tree>
+  </li>
+
+</ul>

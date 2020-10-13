@@ -1,0 +1,63 @@
+<div class="nav-scroller bg-white shadow-sm">
+    <nav class="nav nav-underline">
+        <a class="nav-link active" href="#">Feature Models</a>
+        <a *ngFor="let fm of companyModelList" class="nav-link"
+            routerLink="/featuremodel/{{fm._id}}">{{fm.name}}</a>
+    </nav>
+</div>
+
+<main role="main" class="container">
+    <!--Short Tool Explanation-->
+    <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">
+        <img class="mr-3" src="assets/logo.svg" alt="" width="48" height="48">
+        <div class="lh-100">
+            <h6 class="mb-0 text-white lh-100">Business Modeling Suite</h6>
+            <small>Describe Business Models through a Business Model Decision Line (BMDL) by using Feature Models</small>
+        </div>
+    </div>
+
+    <div class="alert alert-warning" role="alert">
+      <strong>Important</strong> &ndash; This tool is not yet complete. It can contain some bugs which will be fixed until camera ready.
+    </div>
+
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <h6 class="border-bottom border-gray pb-2 mb-0">Short introduction</h6>
+        <div class="text-muted pt-3">
+            <p>The Business Modeling Suite is a tool to describe Business Models through a combination of the Business Model Canvas (BMC) and a Software Product Line (SPL). We call this concept Business Model Decision Line (BMDL), where each feature describes a single business model decision. Features can be ordered in hierarchies and marked as mandatory or optional for the business models. Moreover, there can be Or (at least one sub-feature is selected) and Alternate (exactly one sub-feature is selected) relationships between a parent and a child feature. To refine the business models, cross-tree constraints for requiring and excluding dependencies can be made.</p>
+
+            <p>The current state of the tool allows the creation of feature models and the deriving of business models. New business model decisions of single business models are synchronized with the corresponding feature model to ensure consistency. Moreover, the conformance of business models can be checked with the feature model and occurring conformance errors are explained.</p>
+
+            <button type="button" routerLink="/explanation" class="btn btn-dark btn-sm btn-block">View Full Tool Explanation</button>
+        </div>
+    </div>
+
+    <!-- List Expert Models -->
+    <app-model-list
+      class="expert-model-list"
+      modelListTitle="List of Expert Business Knowledge Models"
+      modelFormTitle="Add Expert Business Knowledge Model"
+      [modelList]="expertModelList"
+      (viewModel)="viewFeatureModel($event)"
+      (editModel)="editFeatureModel($event)"
+      (deleteModel)="deleteExpertModel($event)"
+      (addModel)="addExpertModel($event.name, $event.description)"></app-model-list>
+
+  <app-model-import-view formTitle="Import Expert Model" [importExpertModel]="true"
+                         (imported)="refreshExpertModelList()"></app-model-import-view>
+
+  <!-- List Company Models -->
+    <app-model-list
+      class="company-model-list"
+      modelListTitle="List of Company Business Knowledge Models"
+      modelFormTitle="Add Company Business Knowledge Model"
+      [modelList]="companyModelList"
+      (viewModel)="viewFeatureModel($event)"
+      (editModel)="editFeatureModel($event)"
+      (deleteModel)="deleteCompanyModel($event)"
+      (addModel)="addCompanyModel($event.name, $event.description)"></app-model-list>
+
+  <app-model-import-view formTitle="Import Company Model" [importExpertModel]="false"
+                         (imported)="refreshCompanyModelList()"></app-model-import-view>
+
+    <button type="button" (click)="resetDatabase()" class="btn btn-dark btn-sm btn-block">Reset Database to Default</button>
+</main>

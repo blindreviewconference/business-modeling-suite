@@ -1,0 +1,140 @@
+<ng-template #deleteModal let-c="close" let-d="dismiss">
+  <app-delete-feature-confirm
+    [feature]="modalFeature"
+    (deletionResult)="deleteFeature($event)"
+    (closeModal)="closeModal()"></app-delete-feature-confirm>
+</ng-template>
+
+<ng-template #dependencyModal let-c="close" let-d="dismiss">
+  <app-cross-tree-relationship-modal
+    [featureModel]="featureModel"
+    [feature]="modalFeature"
+    (closeModal)="closeModal()"
+    (removeRelationship)="removeRelationship($event.type, $event.fromFeatureId, $event.toFeatureId)"></app-cross-tree-relationship-modal>
+</ng-template>
+
+<ng-template #updateModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalFeature.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="text-muted pt-3">
+      <app-feature-form
+        [feature]="modalFeature"
+        [disabledSubfeatures]="modalSubfeatureIds"
+        [featureList]="featureList"
+        (submitFeatureForm)="updateFeature($event)"></app-feature-form>
+    </div>
+  </div>
+</ng-template>
+
+<div class="nav-scroller bg-white shadow-sm">
+  <nav class="nav nav-underline">
+    <a *ngIf="featureModel" class="nav-link"
+       [routerLink]="['/featuremodelview', featureModel._id]">View {{featureModel.name}}</a>
+    <a *ngIf="featureModel" class="nav-link active"
+       [routerLink]="['/featuremodel', featureModel._id]">Edit {{featureModel.name}}</a>
+  </nav>
+</div>
+
+<main *ngIf="featureModel" role="main" class="container">
+  <!-- List of Features -->
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 *ngIf="featureModel.expertModel" class="border-bottom border-gray pb-2 mb-0">Expert Knowledge Model List</h6>
+    <h6 *ngIf="!featureModel.expertModel" class="border-bottom border-gray pb-2 mb-0">Company Knowledge Model List</h6>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <app-feature-tree
+          *ngIf="featureModel && featureModel.features"
+          (openDependenciesEmitter)="openDependenciesModal($event)"
+          (updateFeatureEmitter)="updateFeatureModal($event)"
+          (deleteFeatureEmitter)="deleteFeatureModal($event)"
+          [features]="featureModel.features">
+        </app-feature-tree>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-4"><strong>Legend:</strong></div>
+      <div class="col-4"><i class="fa fa-circle"></i> Mandatory Feature</div>
+      <div class="col-4"><i class="fa fa-circle-o"></i> Optional Feature</div>
+    </div>
+    <div class="row">
+      <div class="col-4">&nbsp;</div>
+      <div class="col-4"><i class="fa fa-angle-up"></i> Alternative (Xor)</div>
+      <div class="col-4"><i class="fa fa-caret-up"></i> Or</div>
+    </div>
+  </div>
+
+  <!-- Add a Feature-->
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Add Feature</h6>
+    <div class="text-muted pt-3">
+      <app-feature-form
+        submitButtonText="Add Feature"
+        [featureList]="featureList"
+        (submitFeatureForm)="insertFeature($event)"></app-feature-form>
+    </div>
+  </div>
+
+  <!-- Add a Relationship-->
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Add Cross-Tree Relationship</h6>
+    <div class="text-muted pt-3">
+      <app-cross-tree-relationship-form [featureList]="featureList"
+                                        (submitRelationshipForm)="addRelationship($event)"></app-cross-tree-relationship-form>
+    </div>
+  </div>
+
+  <!-- Update Feature Model Details -->
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Edit Feature Model</h6>
+    <div class="text-muted pt-3">
+      <form [formGroup]="featureModelForm" (ngSubmit)="updateFeatureModel()">
+        <div class="form-group row">
+          <label for="name" class="col-sm-4 col-form-label">Model Name</label>
+          <div class="col-sm-8">
+            <input type="text" formControlName="name" class="form-control" id="name">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="description" class="col-sm-4 col-form-label">Model Description</label>
+          <div class="col-sm-8">
+            <input type="text" formControlName="description" class="form-control" id="description">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="version" class="col-sm-4 col-form-label">Version</label>
+          <div class="col-sm-8">
+            <input type="text" formControlName="version" class="form-control" id="version">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="copyright" class="col-sm-4 col-form-label">Copyright</label>
+          <div class="col-sm-8">
+            <input type="text" formControlName="copyright" class="form-control" id="copyright">
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-12">
+            <button type="submit" class="btn btn-sm btn-dark btn-block"
+                    [disabled]="!featureModelForm.valid">Update Feature Model
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Edit Author Information</h6>
+    <div class="text-muted pt-3">
+      <app-author-form [author]="featureModel.author"
+                       (submitAuthorForm)="updateFeatureModelAuthor($event)"></app-author-form>
+    </div>
+  </div>
+</main>

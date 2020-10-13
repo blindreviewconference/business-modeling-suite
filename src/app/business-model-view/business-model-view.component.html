@@ -1,0 +1,396 @@
+<div class="nav-scroller bg-white shadow-sm">
+  <nav class="nav nav-underline">
+    <a *ngIf="featureModel" class="nav-link"
+       [routerLink]="['/featuremodelview', featureModel._id]">{{featureModel.name}}</a>
+    <a *ngIf="featureModel" class="nav-link active"
+       [routerLink]="['/businessmodelview', featureModel._id, businessModelId]">{{businessModelInstance.name}}</a>
+
+  </nav>
+</div>
+
+<ng-template #deleteModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalFeature.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="alert alert-warning" role="alert">
+      <p>You are trying to remove the decision "{{modalFeature.name}}". Please keep in mind that you are removing
+        also all subdecisions.</p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-block btn-warning"
+            (click)="deleteBusinessModelDecision(modalFeature.id)">Delete
+      Decision
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #addModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalFeature.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <ul class="list-group inner" style="margin:5px;">
+      <li class="list-group-item justify-content-between align-items-center"><i class="fas fa-plus-square"></i>
+        Add existing business model decisions:
+        <ul class="list-group inner" style="margin:5px;">
+          <li class="list-group-item justify-content-between align-items-center"
+              *ngFor=" let f  of modalUnselectedFeatures">
+            <span>
+              {{f.name}}
+              <small class="text-muted" *ngIf="f.description">{{ f.description }}</small>
+            </span>
+            <button (click)="addBusinessModelDecision(f.id)" type="button"
+                    class="btn btn-warning btn-xs bottom-right">Add
+            </button>
+
+          </li>
+          <li class="list-group-item justify-content-between align-items-center"
+              *ngIf="modalUnselectedFeatures.length == 0">There are no existing business model decisions left
+            to add.
+          </li>
+        </ul>
+      </li>
+      <li class="list-group-item justify-content-between align-items-center"><i class="fas fa-plus-square"></i>
+        Add new business model decision:
+        <ul class="list-group inner" style="margin:5px;">
+          <li class="list-group-item justify-content-between align-items-center">
+            <form [formGroup]="addFeatureForm" (ngSubmit)="addFeature()" class="form-inline">
+              <label class="sr-only" for="featurename">Decision Name</label>
+              <input type="text" formControlName="featurename" class="form-control mb-2 mr-sm-2"
+                     id="featurename">
+              <button type="submit" class="btn btn-warning btn-xs bottom-right">Add</button>
+
+            </form>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</ng-template>
+
+<main *ngIf="featureModel" role="main" class="container">
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">{{businessModelInstance.name}} of {{featureModel.name}}</h6>
+
+    <!-- Build Business Model Canvas -->
+    <div *ngIf="featureModel" class="container businesscanvas">
+      <div class="row">
+        <div class="col-2 buildingblock brectangle" [ngStyle]="getHeatmapStyle('key-partners')">
+          <app-canvas-building-block [doubleBlock]="false" [feature]="featureModel.features['key-partners']"
+                                     [instance]="businessModelInstance" [levelDepth]="1"
+                                     [conformance]="conformance"
+                                     [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                     [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                     [showHints]="conformanceOptionsForm.value.showHints"
+                                     [compareInstance]="compareInstance"
+                                     [percentages]="percentages"
+                                     (addFeatureEmitter)="addFeatureModal($event)"
+                                     (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+        </div>
+        <div class="col-3">
+
+          <div class="row">
+            <div class="col-md-12 buildingblock bsquare" [ngStyle]="getHeatmapStyle('key-activities')">
+              <app-canvas-building-block [doubleBlock]="false" [feature]="featureModel.features['key-activities']"
+                                         [instance]="businessModelInstance" [levelDepth]="1"
+                                         [conformance]="conformance"
+                                         [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                         [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                         [showHints]="conformanceOptionsForm.value.showHints"
+                                         [compareInstance]="compareInstance"
+                                         [percentages]="percentages"
+                                         (addFeatureEmitter)="addFeatureModal($event)"
+                                         (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+            </div>
+            <div class="col-md-12 buildingblock bsquare" [ngStyle]="getHeatmapStyle('key-resources')">
+              <app-canvas-building-block [doubleBlock]="false" [feature]="featureModel.features['key-resources']"
+                                         [instance]="businessModelInstance" [levelDepth]="1"
+                                         [conformance]="conformance"
+                                         [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                         [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                         [showHints]="conformanceOptionsForm.value.showHints"
+                                         [compareInstance]="compareInstance"
+                                         [percentages]="percentages"
+                                         (addFeatureEmitter)="addFeatureModal($event)"
+                                         (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+
+            </div>
+          </div>
+        </div>
+        <div class="col-2 buildingblock" [ngStyle]="getHeatmapStyle('value-propositions')">
+          <app-canvas-building-block [doubleBlock]="false" [feature]="featureModel.features['value-propositions']"
+                                     [instance]="businessModelInstance" [levelDepth]="1"
+                                     [conformance]="conformance"
+                                     [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                     [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                     [showHints]="conformanceOptionsForm.value.showHints"
+                                     [compareInstance]="compareInstance"
+                                     [percentages]="percentages"
+                                     (addFeatureEmitter)="addFeatureModal($event)"
+                                     (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+        </div>
+        <div class="col-3">
+          <div class="row">
+            <div class="col-md-12 buildingblock bsquare" [ngStyle]="getHeatmapStyle('customer-relationships')">
+              <app-canvas-building-block [doubleBlock]="false"
+                                         [feature]="featureModel.features['customer-relationships']"
+                                         [instance]="businessModelInstance" [levelDepth]="1"
+                                         [conformance]="conformance"
+                                         [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                         [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                         [showHints]="conformanceOptionsForm.value.showHints"
+                                         [compareInstance]="compareInstance"
+                                         [percentages]="percentages"
+                                         (addFeatureEmitter)="addFeatureModal($event)"
+                                         (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+            </div>
+            <div class="col-md-12 buildingblock bsquare" [ngStyle]="getHeatmapStyle('channels')">
+              <app-canvas-building-block [doubleBlock]="false" [feature]="featureModel.features['channels']"
+                                         [instance]="businessModelInstance" [levelDepth]="1"
+                                         [conformance]="conformance"
+                                         [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                         [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                         [showHints]="conformanceOptionsForm.value.showHints"
+                                         [compareInstance]="compareInstance"
+                                         [percentages]="percentages"
+                                         (addFeatureEmitter)="addFeatureModal($event)"
+                                         (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+            </div>
+          </div>
+        </div>
+        <div class="col-2 buildingblock brectangle" [ngStyle]="getHeatmapStyle('customer-segments')">
+          <app-canvas-building-block [doubleBlock]="false" [feature]="featureModel.features['customer-segments']"
+                                     [instance]="businessModelInstance" [levelDepth]="1"
+                                     [conformance]="conformance"
+                                     [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                     [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                     [showHints]="conformanceOptionsForm.value.showHints"
+                                     [compareInstance]="compareInstance"
+                                     [percentages]="percentages"
+                                     (addFeatureEmitter)="addFeatureModal($event)"
+                                     (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 buildingblock blongtangle" [ngStyle]="getHeatmapStyle('cost-structure')">
+          <app-canvas-building-block [doubleBlock]="false" [feature]="featureModel.features['cost-structure']"
+                                     [instance]="businessModelInstance" [levelDepth]="1"
+                                     [conformance]="conformance"
+                                     [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                     [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                     [showHints]="conformanceOptionsForm.value.showHints"
+                                     [compareInstance]="compareInstance"
+                                     [percentages]="percentages"
+                                     (addFeatureEmitter)="addFeatureModal($event)"
+                                     (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+        </div>
+        <div class="col-6 buildingblock blongtangle" [ngStyle]="getHeatmapStyle('revenue-streams')">
+          <app-canvas-building-block [doubleBlock]="false" [feature]="featureModel.features['revenue-streams']"
+                                     [instance]="businessModelInstance" [levelDepth]="1"
+                                     [conformance]="conformance"
+                                     [showWarnings]="conformanceOptionsForm.value.showWarnings"
+                                     [showStrengths]="conformanceOptionsForm.value.showStrengths"
+                                     [showHints]="conformanceOptionsForm.value.showHints"
+                                     [compareInstance]="compareInstance"
+                                     [percentages]="percentages"
+                                     (addFeatureEmitter)="addFeatureModal($event)"
+                                     (deleteFeatureEmitter)="deleteFeatureModal($event)"></app-canvas-building-block>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-2"><strong>Legend:</strong></div>
+        <div class="col-2">Modification:</div>
+        <div class="col-4"><i class="fas fa-plus-square"></i> Add Business Model Decision</div>
+        <div class="col-4"><i class="fas fa-minus-square"></i> Delete Business Model Decision</div>
+      </div>
+      <ng-container *ngIf="conformanceIsChecked">
+        <div class="row">
+          <div class="col-2">&nbsp;</div>
+          <div class="col-2">Conformance:</div>
+          <div class="col-4"><span class="text-danger">Conformance Error (see below)</span></div>
+          <div class="col-4" *ngIf="conformanceOptionsForm.value.showWarnings">
+            <span class="text-warning">Weakness (see below)</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-2">&nbsp;</div>
+          <div class="col-2">&nbsp;</div>
+          <div class="col-4"><em class="text-danger">Missing Mandatory Decision</em></div>
+          <div class="col-4" *ngIf="conformanceOptionsForm.value.showStrengths">
+            <span class="text-success">Strength (see below)</span>
+          </div>
+        </div>
+        <div class="row" *ngIf="conformanceOptionsForm.value.showHints">
+          <div class="col-2">&nbsp;</div>
+          <div class="col-2">&nbsp;</div>
+          <div class="col-4">&nbsp;</div>
+          <div class="col-4">
+            <em class="text-success">Hint (see below)</em>
+          </div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="compareInstance">
+        <div class="row">
+          <div class="col-2">&nbsp;</div>
+          <div class="col-2">Compare:</div>
+          <div class="col-4"><em class="text-danger">Feature only in other model</em></div>
+          <div class="col-4">
+            <span class="text-success">Feature only in this model</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Conformance Check</h6>
+    <div class="container">
+      <div class="row" style="margin-top:20px;">
+        <button type="button" *ngIf="!conformanceIsChecked" (click)="checkConformance()"
+                class="btn btn-dark btn-sm btn-block">
+          Activate Conformance Checking of Business Model
+        </button>
+        <button type="button" *ngIf="conformanceIsChecked" (click)="uncheckConformance()"
+                class="btn btn-dark btn-sm btn-block">
+          Deactivate Conformance Checking of Business Model
+        </button>
+      </div>
+      <div *ngIf="conformanceIsChecked" style="margin-top:20px;">
+        <form [formGroup]="conformanceOptionsForm">
+          <div class="custom-control custom-switch mb-2">
+            <input formControlName="showWarnings" type="checkbox" class="custom-control-input" id="optionShowWarnings">
+            <label class="custom-control-label" for="optionShowWarnings">Show weaknesses</label>
+          </div>
+          <div class="custom-control custom-switch mb-2">
+            <input formControlName="showStrengths" type="checkbox" class="custom-control-input" id="showStrengths">
+            <label class="custom-control-label" for="showStrengths">Show strengths</label>
+          </div>
+          <div class="custom-control custom-switch mb-2">
+            <input formControlName="showHints" type="checkbox" class="custom-control-input" id="showHints">
+            <label class="custom-control-label" for="showHints">Show hints</label>
+          </div>
+        </form>
+        <div class="row">
+          <div class="col">
+            <h6>Errors</h6>
+            <ul>
+              <li *ngFor="let error of conformance.errors">{{error}}</li>
+            </ul>
+          </div>
+          <div class="col border-left"
+               *ngIf="conformanceOptionsForm.value.showWarnings || conformanceOptionsForm.value.showStrengths">
+            <div *ngIf="conformanceOptionsForm.value.showWarnings">
+              <h6>Weaknesses</h6>
+              <ul>
+                <li *ngFor="let warning of conformance.warnings">{{warning}}</li>
+              </ul>
+            </div>
+            <div *ngIf="conformanceOptionsForm.value.showStrengths">
+              <h6>Strengths</h6>
+              <ul>
+                <li *ngFor="let strength of conformance.strengths">{{strength}}</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col border-left" *ngIf="conformanceOptionsForm.value.showHints">
+            <h6>Hints</h6>
+            <ul>
+              <li *ngFor="let hint of conformance.hints">{{hint}}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Compare</h6>
+    <div class="text-muted pt-3">
+      <form [formGroup]="selectOtherInstanceForm" (ngSubmit)="compare()">
+        <div class="form-group row">
+          <label for="instance" class="col-sm-4 col-form-label">Business Model</label>
+          <div class="col-sm-8">
+            <select id="instance" formControlName="instance" class="form-control">
+              <ng-container *ngFor="let instance of featureModel.instances">
+                <option *ngIf="instance.id !== businessModelId" [ngValue]="'own%' + instance.id">
+                  {{ instance.name }}
+                </option>
+              </ng-container>
+              <ng-container *ngIf="instances">
+                <ng-container *ngFor="let expertModelId of asKeys(instances)">
+                  <option *ngFor="let instance of instances[expertModelId]"
+                          [ngValue]="expertModelId + '%' + instance.id">
+                    {{ instance.name }} ({{ instance.type }})
+                  </option>
+                </ng-container>
+              </ng-container>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-12">
+            <button *ngIf="compareInstance === null" type="submit" class="btn btn-sm btn-dark btn-block"
+                    [disabled]="!selectOtherInstanceForm.valid">
+              Compare
+            </button>
+            <button *ngIf="compareInstance !== null" type="button" class="btn btn-sm btn-dark btn-block"
+                    (click)="clearCompare()">
+              Clear Compare
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Adapt Business Model</h6>
+    <div class="container">
+      <div class="row" style="margin-top:20px;">
+        <button type="button" (click)="createAdaptation()"
+                class="btn btn-dark btn-sm btn-block">
+          Create New Business Model Adaptation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Update Business Model</h6>
+
+    <div class="text-muted pt-3">
+      <form [formGroup]="updateBusinessModelForm" (ngSubmit)="updateBusinessModel()">
+        <div class="form-group row">
+          <label for="name" class="col-sm-4 col-form-label">Business Model Name</label>
+          <div class="col-sm-8">
+            <input type="text" formControlName="name" class="form-control" id="name">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="description" class="col-sm-4 col-form-label">Business Model Description</label>
+          <div class="col-sm-8">
+            <input type="text" formControlName="description" class="form-control" id="description">
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-12">
+            <button type="submit" class="btn btn-sm btn-dark btn-block"
+                    [disabled]="!updateBusinessModelForm.valid">Update Business Model Name
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>

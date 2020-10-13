@@ -1,0 +1,177 @@
+<div class="nav-scroller bg-white shadow-sm">
+  <nav *ngIf="featureModel" class="nav nav-underline">
+    <a class="nav-link active" href="#">{{featureModel.name}}</a>
+    <a *ngFor="let bm of featureModel.instances" class="nav-link"
+       [routerLink]="['/businessmodelview', featureModel._id, bm.id]">{{bm.name}}</a>
+  </nav>
+</div>
+
+<main *ngIf="featureModel" role="main" class="container">
+
+  <app-model-info-box [featureModel]="featureModel"></app-model-info-box>
+
+  <!-- List Features -->
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 *ngIf="featureModel.expertModel" class="border-bottom border-gray pb-2 mb-0">Expert Knowledge Model
+      of {{featureModel.name}}</h6>
+    <h6 *ngIf="!featureModel.expertModel" class="border-bottom border-gray pb-2 mb-0">Company Knowledge Model
+      of {{featureModel.name}}</h6>
+
+    <div *ngIf="featureModel" class="container businesscanvas">
+      <div class="row">
+        <div class="col-2 buildingblock brectangle">
+          <app-feature-building-block [doubleBlock]="false"
+                                      [features]="asList(featureModel.features['key-partners'].subfeatures)"
+                                      [buildingBlockName]="'Key Partners'"></app-feature-building-block>
+        </div>
+        <div class="col-3">
+
+          <div class="row">
+            <div class="col-md-12 buildingblock bsquare">
+              <app-feature-building-block [doubleBlock]="false"
+                                          [features]="asList(featureModel.features['key-activities'].subfeatures)"
+                                          [buildingBlockName]="'Key Activities'">
+              </app-feature-building-block>
+            </div>
+            <div class="col-md-12 buildingblock bsquare">
+              <app-feature-building-block [doubleBlock]="false"
+                                          [features]="asList(featureModel.features['key-resources'].subfeatures)"
+                                          [buildingBlockName]="'Key Resources'">
+              </app-feature-building-block>
+            </div>
+          </div>
+        </div>
+        <div class="col-2 buildingblock">
+          <app-feature-building-block [doubleBlock]="false"
+                                      [features]="asList(featureModel.features['value-propositions'].subfeatures)"
+                                      [buildingBlockName]="'Value Propositions'"></app-feature-building-block>
+        </div>
+        <div class="col-3">
+          <div class="row">
+            <div class="col-md-12 buildingblock bsquare">
+              <app-feature-building-block [doubleBlock]="false"
+                                          [features]="asList(featureModel.features['customer-relationships'].subfeatures)"
+                                          [buildingBlockName]="'Customer Relationships'"></app-feature-building-block>
+            </div>
+            <div class="col-md-12 buildingblock bsquare">
+              <app-feature-building-block [doubleBlock]="false"
+                                          [features]="asList(featureModel.features['channels'].subfeatures)"
+                                          [buildingBlockName]="'Customer Channels'"></app-feature-building-block>
+            </div>
+          </div>
+        </div>
+        <div class="col-2 buildingblock brectangle">
+          <app-feature-building-block [doubleBlock]="false"
+                                      [features]="asList(featureModel.features['customer-segments'].subfeatures)"
+                                      [buildingBlockName]="'Customer Segments'"></app-feature-building-block>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 buildingblock blongtangle">
+          <app-feature-building-block [doubleBlock]="true"
+                                      [features]="asList(featureModel.features['cost-structure'].subfeatures)"
+                                      [buildingBlockName]="'Cost Structure'"></app-feature-building-block>
+        </div>
+        <div class="col-6 buildingblock blongtangle">
+          <app-feature-building-block [doubleBlock]="true"
+                                      [features]="asList(featureModel.features['revenue-streams'].subfeatures)"
+                                      [buildingBlockName]="'Revenue Streams'"></app-feature-building-block>
+        </div>
+      </div>
+
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-4"><strong>Legend:</strong></div>
+        <div class="col-4"><i class="fa fa-circle"></i> Mandatory Feature</div>
+        <div class="col-4"><i class="fa fa-circle-o"></i> Optional Feature</div>
+      </div>
+
+      <div class="row" style="margin-top:20px;">
+        <button type="button" [routerLink]="['/featuremodel', featureModelId]"
+                class="btn btn-sm btn-dark btn-lg btn-block">View Complete Feature Model
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Export Model</h6>
+    <div class="text-muted pt-3">
+      <div>
+        <div class="form-group row">
+          <div class="col-sm-12">
+            <button (click)="exportModel()" type="submit" class="btn btn-sm btn-dark btn-block">Export Model</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-instance-list *ngIf="featureModel.expertModel" formTitle="Add Pattern Instance"
+                     listTitle="Pattern Instances"
+                     [instances]="getPatternInstances()" (addInstance)="addInstance($event, getPatternInstanceType())"
+                     (viewInstance)="viewBusinessModel($event)"
+                     (deleteInstance)="deleteBusinessModel($event)"></app-instance-list>
+
+  <app-instance-list *ngIf="featureModel.expertModel" formTitle="Add Example Instance"
+                     listTitle="Example Instances"
+                     [instances]="getExampleInstances()" (addInstance)="addInstance($event)"
+                     (viewInstance)="viewBusinessModel($event)"
+                     (deleteInstance)="deleteBusinessModel($event)"></app-instance-list>
+
+  <app-instance-list *ngIf="!featureModel.expertModel" formTitle="Add Business Model"
+                     listTitle="Derived Business Models"
+                     [instances]="featureModel.instances" (addInstance)="addInstance($event)"
+                     (viewInstance)="viewBusinessModel($event)"
+                     (deleteInstance)="deleteBusinessModel($event)"></app-instance-list>
+
+  <ng-container *ngIf="!featureModel.expertModel">
+    <!-- List expert models -->
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+      <h6 class="border-bottom border-gray pb-2 mb-0">Selected Expert Business Knowledge Models</h6>
+
+      <ul *ngIf="selectedExpertModelList" class="list-group inner" style="margin:5px;">
+
+        <li *ngFor="let em of selectedExpertModelList"
+            class="d-flex list-group-item justify-content-between align-items-center">
+
+          <span>{{ em.name }}</span>
+          <span>
+            <button type="button" (click)="mergeExpertModel(em._id)"
+                    class="btn btn-warning btn-xs">Merge</button>&nbsp;
+            <button (click)="viewExpertModel(em._id)" type="button"
+                    class="btn btn-dark btn-xs">View</button>&nbsp;
+            <button (click)="unselectExpertModel(em._id)" type="button"
+                    class="btn btn-danger btn-xs">Unselect</button>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Select expert model -->
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+      <h6 class="border-bottom border-gray pb-2 mb-0">Select Expert Business Knowledge Model</h6>
+      <div class="text-muted pt-3">
+        <form [formGroup]="selectedExpertModelForm" (ngSubmit)="selectExpertModel()">
+          <div class="form-group row">
+            <label for="expertModelSelector" class="col-sm-4 col-form-label">Expert Business Knowledge Model</label>
+            <div class="col-sm-8">
+              <select id="expertModelSelector" formControlName="expertModelId" class="form-control">
+                <option *ngFor="let em of unselectedExpertModelList" [value]="em._id">{{ em.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm-12">
+              <button type="submit" class="btn btn-sm btn-dark btn-block" [disabled]="!selectedExpertModelForm.valid">
+                Add Expert Model
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </ng-container>
+</main>

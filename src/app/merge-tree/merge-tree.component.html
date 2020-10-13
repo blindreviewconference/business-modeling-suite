@@ -1,0 +1,50 @@
+<ul *ngIf="features" class="list-group inner" style="margin:5px;">
+
+  <li *ngFor="let f of asList(features)" class="list-group-item justify-content-between align-items-center">
+
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex">
+        <div class="mr-1">
+          <i *ngIf="f.type === 'mandatory'" class="fa fa-circle"></i>
+          <i *ngIf="f.type === 'optional'" class="fa fa-circle-o"></i>
+        </div>
+
+        <div class="mr-1">
+          {{ f.name }}
+          <small class="text-muted" *ngIf="f.description">{{ f.description }}</small>
+        </div>
+
+        <div>
+          <i class="fa fa-caret-up" *ngIf="f.subfeatureConnections === 'or'"></i>
+          <i class="fa fa-angle-up" *ngIf="f.subfeatureConnections === 'xor'"></i>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" *ngIf="!f.relationships.hasNoRelationships()"
+                class="btn btn-dark btn-xs mr-1" (click)="openDependencies.emit(f.id)">Show Dependencies
+        </button>
+        <button type="button" class="btn btn-warning btn-xs mr-1"
+                *ngIf="!trace.expertFeatureIdMap[f.id] && f.parent && trace.expertFeatureIdMap[f.parent.id]"
+                (click)="addTrace.emit(f.id)">Add
+        </button>
+        <button type="button" class="btn btn-warning btn-xs mr-1"
+                *ngIf="!trace.expertFeatureIdMap[f.id] && f.parent && trace.expertFeatureIdMap[f.parent.id]"
+                (click)="selectFeature.emit(f.id)">Select
+        </button>
+        <button type="button" class="btn btn-primary btn-xs mr-1" *ngIf="trace.expertFeatureIdMap[f.id]"
+                (click)="openTrace.emit(f.id)">
+          Show Trace
+        </button>
+        <i class="fa fa-check" *ngIf="trace.expertFeatureIdMap[f.id]"></i>
+        <i class="fa fa-exclamation-triangle" *ngIf="!trace.expertFeatureIdMap[f.id]"></i>
+      </div>
+    </div>
+
+    <app-merge-tree [features]="f.subfeatures" [trace]="trace"
+                    (openDependencies)="openDependencies.emit($event)"
+                    (addTrace)="addTrace.emit($event)" (selectFeature)="selectFeature.emit($event)"
+                    (openTrace)="openTrace.emit($event)"></app-merge-tree>
+  </li>
+
+</ul>

@@ -1,0 +1,137 @@
+{
+    "name": "ToDo List Knowledge",
+    "description": "Knowledge from the analysis of mobile applications",
+    "author": {
+        "name": "First Author",
+        "email": "first.author@domain.tld"
+    },
+    "features": {
+        "value-propositions": {
+            "name": "Value Propositions",
+            "type": "mandatory",
+            "subfeatures": {
+                "save-privacy": {
+                    "name": "Save Privacy",
+                    "relationship": {
+                        "excludes": [
+                            "in-app-advertisements",
+                            "free-for-all"
+                        ]
+                    }
+                },
+                "free-for-all": {
+                    "name": "Free for All",
+                    "relationship": {
+                        "requires": [
+                            "in-app-advertisements"
+                        ]
+                    }
+                },
+                "collaborate-with-others": {
+                    "name": "Collaborate With Others",
+                    "relationship": {
+                        "requires": [
+                            "license-subscription"
+                        ]
+                    }
+                }
+            }
+        },
+        "customer-segments": {
+            "name": "Customer Segments",
+            "subfeatures": {
+                "private-user": {
+                    "name": "Private User"
+                },
+                "professional-user": {
+                    "name": "Professional User",
+                    "relationship": {
+                        "requires": [
+                            "save-privacy"
+                        ]
+                    }
+                }
+            }
+        },
+        "customer-relationships": {
+            "name": "Customer Relationships"
+        },
+        "channels": {
+            "name": "Channels",
+            "subfeatures": {
+                "facebook-ads": {
+                    "name": "Facebook Ads",
+                    "relationship": {
+                        "requires": [
+                            "private-user"
+                        ]
+                    }
+                },
+                "linked-in-ads": {
+                    "name": "LinkedIn Ads",
+                    "relationship": {
+                        "requires": [
+                            "professional-user"
+                        ]
+                    }
+                }
+            }
+        },
+        "revenue-streams": {
+            "name": "Revenue Streams",
+            "type": "mandatory",
+            "subfeatureConnections": "or",
+            "subfeatures":{
+                "in-app-advertisments": {
+                    "name": "In-App Advertisements"
+                },
+                "license-purchase": {
+                    "name": "License Purchase",
+                    "relationship": {
+                        "excludes": ["license-subscription"]
+                    }
+                },
+                "license-subscription":{
+                    "name": "License Subscription"
+                }
+            }
+        },
+        "key-partners": {
+            "name": "Key Partners"
+        },
+        "key-activities": {
+            "name": "Key Activities"
+        },
+        "key-resources": {
+            "name": "Key Resources"
+        },
+        "cost-structure": {
+            "name": "Cost Structure"
+        }
+
+    },
+    "instances": [
+        {
+            "name": "Todoist",
+            "description": "Todoist as a premium version of their todo-list application",
+            "type": "example",
+            "usedFeatures": [
+                "private-user",
+                "facebook-ads",
+                "free-for-all",
+                "in-app-advertisements"
+            ]
+        },
+        {
+            "name": "Mass User Pattern",
+            "type": "pattern",
+            "description": "Make money with advertisements on huge user groups",
+            "usedFeatures": [
+                "private-user",
+                "facebook-ads",
+                "free-for-all",
+                "in-app-advertisements"
+            ]
+        }
+    ]
+}
